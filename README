@@ -1,0 +1,11 @@
+Simple library for creating/handling Mongo IDs.
+
+Usage:
+
+	;; create byte array from string id
+    (mongoid:oid "4f9638d834322b9531000005")  ->
+        #(79 150 56 216 52 50 43 149 49 0 0 5)
+    
+	;; create new id using mongodb client id specification: http://www.mongodb.org/display/DOCS/Object+IDs
+	(mongoid:oid) -> 
+	    #(79 150 62 92 61 196 44 20 228 0 0 0)
