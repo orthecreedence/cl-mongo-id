@@ -59,9 +59,9 @@
         inc
         (convert-vector-int inc))))
 
-(define-condition hex-conversion-error (error) ()
-  (:report (lambda (o s)
-             (format s "Conversion of hex string to byte array failed: ~a" o))))
+(define-condition hex-conversion-error (error) ((str :initarg :str :reader hex-conversion-error-str))
+  (:report (lambda (c s)
+             (format s "Conversion of hex string to byte array failed: ~a" (hex-conversion-error-str c)))))
 
 (defun convert-hex-vector (str)
   "Takes a hex string, IE 4f2b8096 and converts it into a byte array:
@@ -70,7 +70,7 @@
   (declare (optimize (speed 3) (safety 1))
            (type string str))
   (when (oddp (length str))
-    (error 'hex-conversion-error :text (format nil "Odd-length string given in hex conversion: ~a" str)))
+    (error 'hex-conversion-error :str (format nil "Odd-length string given in hex conversion: ~a" str)))
   (let ((vec (make-array 0 :fill-pointer t :adjustable t)))
     (loop for i from 0 to (1- (/ (length str) 2)) do
       (vector-push-extend (read-from-string (format nil "#x~a" (subseq str (* 2 i) (* 2 (1+ i)))) :base 10) vec))
