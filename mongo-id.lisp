@@ -13,9 +13,6 @@
 (defvar *id-inc* 0)
 (defvar *id-inc-lock* (bt:make-lock))
 
-(defvar *hostname* nil)
-(defvar *hostname-lock* (bt:make-lock))
-
 (defun oid (&optional id)
   "Generate a mongo id."
   (cond
@@ -104,14 +101,8 @@
       (concatenate 'vector timestamp-bytes hostname-bytes pid-bytes inc-bytes))))
 
 (defun get-current-hostname ()
-  "Get hostname of machine (and cache it)."
-  (declare (optimize (speed 3) (safety 1)))
-  (bt:with-lock-held (*hostname-lock*)
-    (if *hostname*
-        *hostname*
-        (let ((host (machine-instance)))
-          (setf *hostname* (subseq host 0 (position #\  host)))
-          *hostname*))))
+  "Get hostname of machine."
+  (machine-instance))
 
 (defun get-current-timestamp ()
   "Get current unix timestamp."
