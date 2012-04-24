@@ -49,6 +49,8 @@ Get the int value corresponding to the first three bytes of the MD5 of the hostn
 
     (mongoid:get-hostname (oid "4f96f9fa3dc42c14e400004e"))  ->
         4047916
+    (mongoid:get-hostname (oid "4f96f9fa3dc42c14e400004e") :bytes t)  ->
+        #(61 196 44)
 
 ### get-inc
 Get the ID's "inc" value:
