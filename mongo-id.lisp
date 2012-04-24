@@ -7,7 +7,7 @@
            :get-hostname
            :get-pid
            :get-inc)
-  (:nicknames :mongo-id))
+  (:nicknames :mongoid))
 (in-package :cl-mongo-id)
 
 (defvar *id-inc* 0)
