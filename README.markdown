@@ -1,7 +1,7 @@
 cl-mongo-id
 ===========
 
-This is a simple library for creating/handling Mongo IDs.
+This is a simple library for creating/handling Mongo IDs (ObjectIDs).
 
 Usage
 -----
@@ -16,6 +16,11 @@ Create new id using mongodb client id specification (http://www.mongodb.org/disp
 
     (mongoid:oid)  ->
         #(79 150 62 92 61 196 44 20 228 0 0 0)
+
+Grab a string representation of an ObjectID:
+
+    (mongid:oid-str (mongoid:oid))  ->
+	    "4F97001C3DC42C14E4000050"
 
 Thread safe
 -----------
