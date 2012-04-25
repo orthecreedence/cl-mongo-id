@@ -22,6 +22,22 @@ Grab a string representation of an ObjectID:
     (mongid:oid-str (mongoid:oid))  ->
 	    "4F97001C3DC42C14E4000050"
 
+Usage with cl-mongo
+-------------------
+The cl-mongo-id library can be used with cl-mongo. There is just one caveat:
+You must import the `make-bson-oid` function from the cl-mongo package before
+you can use the two together.
+
+    (import 'cl-mongo::make-bson-oid)
+    
+    (with-mongo-connection (:host "127.0.0.1" :db "test")
+      ;; querying a document of a known id
+      (car (docs (iter (db.find "mycoll" (kv "_id" (make-bson-oid :oid (mongoid:oid "4f9638d834322b9531000005")))))))
+    
+      ;; creating a new document with an oid
+	  (let ((doc (make-document :oid (make-bson-oid :oid (mongoid:oid)))))
+	    (db.save "mycoll" doc)))
+
 Thread safe
 -----------
 cl-mongo-id is built to be thread-safe (specifically the inc value). This means
