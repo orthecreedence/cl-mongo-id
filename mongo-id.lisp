@@ -13,7 +13,7 @@
 (defvar *id-inc-lock* (bt:make-lock))
 
 (defun oid (&optional id)
-  "Generate a mongo id."
+  "Generate a mongo id, in byte vector format."
   (cond
     ((stringp id) (convert-hex-vector id))
     ((vectorp id) id)
