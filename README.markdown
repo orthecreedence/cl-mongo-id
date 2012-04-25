@@ -41,7 +41,7 @@ cl-mongo package before you can use the two together.
     
     (with-mongo-connection (:host "127.0.0.1" :db "test")
       ;; querying a document of a known id
-      (car (docs (iter (db.find "mycoll" (kv "_id" (make-bson-oid :oid (mongoid:oid "4f9638d834322b9531000005")))))))
+      (db.find "mycoll" (kv "_id" (make-bson-oid :oid (mongoid:oid "4f9638d834322b9531000005"))))
     
       ;; creating a new document with an oid
 	  (let ((doc (make-document :oid (make-bson-oid :oid (mongoid:oid)))))
