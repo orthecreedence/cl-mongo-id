@@ -1,7 +1,14 @@
 cl-mongo-id
 ===========
 
-This is a simple library for creating/handling Mongo IDs (ObjectIDs).
+This is a simple library for creating/handling MongoDB's ObjectIDs. It works by
+grabbing key pieces of info (unix timestamp, hostname, process pid, global "inc"
+value) and creating a new ObjectID as a 12-byte array #(79 151 129 ...)
+
+It aims to be as cross-platform/implementation as possible. If you find you're
+unable to run it on your specific platform, please
+[let me know](https://github.com/orthecreedence/cl-mongo-id/issues) and I'll do
+whatever I can to fix it!
 
 Usage
 -----
