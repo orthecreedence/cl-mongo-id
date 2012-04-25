@@ -10,9 +10,9 @@ Create byte array from string id:
     (mongoid:oid "4f9638d834322b9531000005")  ->
         #(79 150 56 216 52 50 43 149 49 0 0 5)
     
-If you pass a bad string id into (oid), it will most likely throw a hex-conversion-error.
+If you pass a bad string id into `(oid)`, it will most likely throw a hex-conversion-error.
 
-Create new id using mongodb client id specification (http://www.mongodb.org/display/DOCS/Object+IDs):
+Create new id using [mongodb client id specification](http://www.mongodb.org/display/DOCS/Object+IDs):
 
     (mongoid:oid)  ->
         #(79 150 62 92 61 196 44 20 228 0 0 0)
@@ -24,9 +24,9 @@ Grab a string representation of an ObjectID:
 
 Usage with cl-mongo
 -------------------
-The cl-mongo-id library can be used with cl-mongo. There is just one caveat:
-You must import the `make-bson-oid` function from the cl-mongo package before
-you can use the two together.
+The cl-mongo-id library can be used with [cl-mongo](https://github.com/fons/cl-mongo).
+There is just one caveat: You must import the `make-bson-oid` function from the
+cl-mongo package before you can use the two together.
 
     (import 'cl-mongo::make-bson-oid)
     
@@ -41,7 +41,7 @@ you can use the two together.
 Thread safe
 -----------
 cl-mongo-id is built to be thread-safe (specifically the inc value). This means
-you can create ID's via (oid) from several different threads without problems,
+you can create ID's via `(oid)` from several different threads without problems,
 and your inc value will be unique between all of them.
 
 Helper functions
