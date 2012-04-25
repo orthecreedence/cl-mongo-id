@@ -22,6 +22,14 @@ Grab a string representation of an ObjectID:
     (mongid:oid-str (mongoid:oid))  ->
 	    "4F97001C3DC42C14E4000050"
 
+Please note that cl-mongo-id is *not* available via quicklisp yet. I'm working
+on this. In the meantime, you can do the following:
+
+    cd ~/quicklisp/local-projects
+	git clone git://github.com/orthecreedence/cl-mongo-id.git
+
+Now you should be able to do a `(ql:quickload :cl-mongo-id)` =].
+
 Usage with cl-mongo
 -------------------
 The cl-mongo-id library can be used with [cl-mongo](https://github.com/fons/cl-mongo).
