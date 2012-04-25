@@ -12,7 +12,7 @@ Create byte array from string id:
     
 If you pass a bad string id into `(oid)`, it will most likely throw a hex-conversion-error.
 
-Create new id using [mongodb client id specification](http://www.mongodb.org/display/DOCS/Object+IDs):
+Create new id using [MongoDB ObjectID specification](http://www.mongodb.org/display/DOCS/Object+IDs):
 
     (mongoid:oid)  ->
         #(79 150 62 92 61 196 44 20 228 0 0 0)
