@@ -2,7 +2,6 @@
   (:use :cl)
   (:export :oid
            :oid-str
-           :hex-conversion-error
            :get-timestamp
            :get-hostname
            :get-pid
@@ -20,76 +19,76 @@
     ((vectorp id) id)
     ((null id)    (create-new-id))))
 
-(defun oid-str (oid &key downcase)
+(defun oid-str (oid)
   "Given a vector ID, convert it to a string."
-  (declare (optimize (speed 3) (safety 1))
-           (type vector oid))
-  (let ((str ""))
-    (loop for byte across oid do
-      (setf str (concatenate 'string str (format nil "~2,'0X" byte))))
-    (if downcase
-        (string-downcase str)
-        str)))
+  (let ((hex-string (make-string 24)))
+    (loop for byte across oid
+          for i from 0 by 2 do
+      (let ((byte-hex (format nil "~2,'0X" byte)))
+        (setf (aref hex-string i) (aref byte-hex 0)
+              (aref hex-string (1+ i)) (aref byte-hex 1))))
+    hex-string))
 
 (defun get-timestamp (oid &key bytes)
-  "Grab the timestamp out of a vector oid."
+  "Grab the timestamp out of a vector oid. Passing :bytes t will return an array
+  of bytes corresponding to the timestamp part of the ID instead of parsing it
+  as an integer."
   (let ((timestamp (subseq oid 0 4)))
     (if bytes
         timestamp
         (convert-vector-int timestamp))))
 
 (defun get-hostname (oid &key bytes)
-  "Grab the hostname int out of a vector oid."
+  "Grab the hostname int out of a vector oid. Passing :bytes t will return an
+  array of bytes corresponding to the hostname part of the ID instead of parsing
+  it as an integer."
   (let ((host (subseq oid 4 7)))
     (if bytes
         host
         (convert-vector-int host))))
 
 (defun get-pid (oid &key bytes)
-  "Grab the pid out of a vector oid."
+  "Grab the pid out of a vector oid. Passing :bytes t will return an array of
+  bytes corresponding to the PID part of the ID instead of parsing it as an 
+  integer."
   (let ((pid (subseq oid 7 9)))
     (if bytes
         pid
         (convert-vector-int pid))))
 
 (defun get-inc (oid &key bytes)
-  "Grab the inc value out of a vector oid."
+  "Grab the inc value out of a vector oid. Passing :bytes t will return an array
+  of bytes corresponding to the inc value of the ID instead of parsing it as an
+  integer."
   (let ((inc (subseq oid 9)))
     (if bytes
         inc
         (convert-vector-int inc))))
 
-(define-condition hex-conversion-error (error) ((str :initarg :str :reader hex-conversion-error-str))
-  (:report (lambda (c s)
-             (format s "Conversion of hex string to byte array failed: ~a" (hex-conversion-error-str c)))))
-
-(defun convert-hex-vector (str)
+(defun convert-hex-vector (hex-string)
   "Takes a hex string, IE 4f2b8096 and converts it into a byte array:
       4f2b8096 -> #(79 43 128 150)
   Hex string *must* have even number of bytes."
-  (declare (optimize (speed 3) (safety 1))
-           (type string str))
-  (when (oddp (length str))
-    (error 'hex-conversion-error :str (format nil "Odd-length string given in hex conversion: ~a" str)))
-  (let ((vec (make-array 0 :fill-pointer t :adjustable t)))
-    (loop for i from 0 to (1- (/ (length str) 2)) do
-      (vector-push-extend (read-from-string (format nil "#x~a" (subseq str (* 2 i) (* 2 (1+ i)))) :base 10) vec))
-    vec))
+  (assert (evenp (length hex-string)))
+  (let* ((octet-count (floor (length hex-string) 2))
+         (vector (make-array octet-count :element-type '(unsigned-byte 8))))
+    (loop for i below octet-count
+          for j from 0 by 2
+          for k from 2 by 2 do
+      (setf (aref vector i)
+            (parse-integer hex-string :start j :end k :radix 16)))
+    vector))
 
-(defun convert-vector-int (vec)
+(defun convert-vector-int (vector)
   "Convert a byte array to an integer:
       #(79 150 243 81) -> 1335292753"
-  (declare (optimize (speed 3) (safety 1))
-           (type vector vec))
-  (let ((str "#x"))
-    (loop for byte across vec do
-      (setf str (concatenate 'string str (format nil "~2,'0x" byte))))
-    (car (multiple-value-list (read-from-string str :base 10)))))
+  (reduce (lambda (x y)
+            (+ (ash x 8) y))
+          vector))
 
 (defun create-new-id ()
   "Create a brand-spankin-new ObjectId using the current timestamp/inc values,
   along with hostname and process pid."
-  (declare (optimize (speed 3) (safety 1)))
   (let ((hostname (get-current-hostname))
         (pid (logand #xFFFF (get-current-pid)))
         (timestamp (logand #xFFFFFFFF (get-current-timestamp)))
@@ -112,14 +111,14 @@
 (defun get-inc-val ()
   "Thread-safe method to get current ObjectId inc value. Takes an optional
   timestamp value to calculate inc for."
-  (declare (optimize (speed 3) (safety 1)))
   (bt:with-lock-held (*id-inc-lock*)
     (setf *id-inc* (logand #xFFFFFF (1+ *id-inc*)))
     *id-inc*))
 
-(defun get-current-pid ()
+(defun get-current-pid (&key if-not-exists-return)
   "Get the current process' PID. This function does it's best to be cross-
-  implementation."
+  implementation. If it isn't able to grab the PID from the system, it defaults
+  to returning whatever value is passed into the :if-not-exists-return key."
   #+clisp
   (system::process-id)
   #+(and lispworks unix)
@@ -129,5 +128,7 @@
   #+(and cmu unix)
   (unix:unix-getpid)
   #+openmcl
-  (ccl::getpid))
+  (ccl::getpid)
+  #-(or clisp (and lispworks unix) (and sbcl unix) (and cmu unix) (and openmcl unix) openmcl)
+  if-not-exists-return)
 
