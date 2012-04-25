@@ -58,7 +58,7 @@ Helper functions
 cl-mongo-id has some helper functions that may be useful to you for either 
 debugging or grabbing values from your IDs. 
 
-Note that all of the following helper functions take a keyword argument :bytes,
+Note that all of the following helper functions take a keyword argument `:bytes`,
 which if set to T will return the raw bytes of that portion of the ID and not
 convert them to an integer.
 
