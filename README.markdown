@@ -22,6 +22,7 @@ Grab a string representation of an ObjectID:
     (mongid:oid-str (mongoid:oid))  ->
 	    "4F97001C3DC42C14E4000050"
 
+### Quicklisp
 Please note that cl-mongo-id is *not* available via quicklisp yet. I'm working
 on this. In the meantime, you can do the following:
 
