@@ -7,6 +7,8 @@
 ;;;
 ;;;   https://github.com/orthecreedence/cl-mongo-id
 ;;;
+;;; Please enjoy irresponsibly =].
+;;;
 ;;; Andrew Lyon <orthecreedence@gmail.com>
 
 (defpackage :cl-mongo-id
