@@ -17,8 +17,6 @@ Create byte array from string id:
     (mongoid:oid "4f9638d834322b9531000005")  ->
         #(79 150 56 216 52 50 43 149 49 0 0 5)
     
-If you pass a bad string id into `(oid)`, it will most likely throw a hex-conversion-error.
-
 Create new id using [MongoDB ObjectID specification](http://www.mongodb.org/display/DOCS/Object+IDs):
 
     (mongoid:oid)  ->
