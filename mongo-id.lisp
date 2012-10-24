@@ -1,3 +1,16 @@
+;;; This is a library for generating MongoDB ObjectIDs per the client 
+;;; specification:
+;;;
+;;;   http://www.mongodb.org/display/DOCS/Object+IDs
+;;;
+;;; Full documentation on github:
+;;;
+;;;   https://github.com/orthecreedence/cl-mongo-id
+;;;
+;;; Please enjoy irresponsibly =].
+;;;
+;;; Andrew Lyon <orthecreedence@gmail.com>
+
 (defpackage :cl-mongo-id
   (:use :cl)
   (:export :oid
