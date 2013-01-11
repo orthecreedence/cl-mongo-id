@@ -118,8 +118,7 @@
 
 (defun get-current-timestamp ()
   "Get current unix timestamp."
-  ;; 2208988800 == (encode-universal-time 0 0 0 1 1 1970 0)
-  (- (get-universal-time) 2208988800))
+  (local-time:timestamp-to-unix (local-time:now)))
 
 (defun get-inc-val ()
   "Thread-safe method to get current ObjectId inc value. Takes an optional
