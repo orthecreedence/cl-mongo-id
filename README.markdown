@@ -28,7 +28,7 @@ Create new id using [MongoDB ObjectID specification](http://www.mongodb.org/disp
 
 Grab a string representation of an ObjectID:
 
-    (mongid:oid-str (mongoid:oid))  ->
+    (mongoid:oid-str (mongoid:oid))  ->
 	    "4F97001C3DC42C14E4000050"
 
 Usage with cl-mongo
