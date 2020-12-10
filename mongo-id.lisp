@@ -1,4 +1,4 @@
-;;; This is a library for generating MongoDB ObjectIDs per the client 
+;;; This is a library for generating MongoDB ObjectIDs per the client
 ;;; specification:
 ;;;
 ;;;   http://www.mongodb.org/display/DOCS/Object+IDs
@@ -22,8 +22,7 @@
   (:nicknames :mongoid))
 (in-package :cl-mongo-id)
 
-(defvar *id-inc* 0)
-(defvar *id-inc-lock* (bt:make-lock))
+(defvar *id-inc* (secure-random:number (ash 1 24)))
 
 (defun oid (&optional id)
   "Generate a mongo id, in byte vector format."
@@ -62,7 +61,7 @@
 
 (defun get-pid (oid &key bytes)
   "Grab the pid out of a vector oid. Passing :bytes t will return an array of
-  bytes corresponding to the PID part of the ID instead of parsing it as an 
+  bytes corresponding to the PID part of the ID instead of parsing it as an
   integer."
   (let ((pid (subseq oid 7 9)))
     (if bytes
@@ -123,9 +122,8 @@
 (defun get-inc-val ()
   "Thread-safe method to get current ObjectId inc value. Takes an optional
   timestamp value to calculate inc for."
-  (bt:with-lock-held (*id-inc-lock*)
-    (setf *id-inc* (logand #xFFFFFF (1+ *id-inc*)))
-    *id-inc*))
+  (logand #xFFFFFF
+          (atomics:atomic-incf *id-inc*)))
 
 (defun get-current-pid (&key if-not-exists-return)
   "Get the current process' PID. This function does it's best to be cross-
@@ -145,4 +143,3 @@
   (ext:getpid)
   #-(or clisp (and lispworks unix) (and sbcl unix) (and cmu unix) (and openmcl unix) openmcl ecl)
   if-not-exists-return)
-
