@@ -1,7 +1,7 @@
 ;;; This is a library for generating MongoDB ObjectIDs per the client
 ;;; specification:
 ;;;
-;;;   http://www.mongodb.org/display/DOCS/Object+IDs
+;;;   https://github.com/mongodb/specifications/blob/master/source/objectid.rst
 ;;;
 ;;; Full documentation on github:
 ;;;
@@ -23,6 +23,11 @@
 (in-package :cl-mongo-id)
 
 (defvar *id-inc* (secure-random:number (ash 1 24)))
+
+;; In previous version of the ObjectId spec this was referenced as the
+;; machine and pid. In v0.2 of the spec if was made to be a random
+;; 5-byte sequence randomly chosen per instance of the process.
+(defvar *random-value* (secure-random:bytes 5 secure-random:*generator*))
 
 (defun oid (&optional id)
   "Generate a mongo id, in byte vector format."
@@ -51,22 +56,10 @@
         (convert-vector-int timestamp))))
 
 (defun get-hostname (oid &key bytes)
-  "Grab the hostname int out of a vector oid. Passing :bytes t will return an
-  array of bytes corresponding to the hostname part of the ID instead of parsing
-  it as an integer."
-  (let ((host (subseq oid 4 7)))
-    (if bytes
-        host
-        (convert-vector-int host))))
+  (error "get-hostname is no longer supported by the ObjectId spec"))
 
 (defun get-pid (oid &key bytes)
-  "Grab the pid out of a vector oid. Passing :bytes t will return an array of
-  bytes corresponding to the PID part of the ID instead of parsing it as an
-  integer."
-  (let ((pid (subseq oid 7 9)))
-    (if bytes
-        pid
-        (convert-vector-int pid))))
+  (error "get-pid is no longer supported by the ObjectId spec"))
 
 (defun get-inc (oid &key bytes)
   "Grab the inc value out of a vector oid. Passing :bytes t will return an array
@@ -101,19 +94,11 @@
 (defun create-new-id ()
   "Create a brand-spankin-new ObjectId using the current timestamp/inc values,
   along with hostname and process pid."
-  (let ((hostname (get-current-hostname))
-        (pid (logand #xFFFF (get-current-pid)))
-        (timestamp (logand #xFFFFFFFF (get-current-timestamp)))
+  (let ((timestamp (logand #xFFFFFFFF (get-current-timestamp)))
         (inc (get-inc-val)))
-    (let ((hostname-bytes (subseq (md5:md5sum-sequence hostname) 0 3))
-          (pid-bytes (convert-hex-vector (format nil "~4,'0X" pid)))
-          (timestamp-bytes (convert-hex-vector (format nil "~8,'0X" timestamp)))
+    (let ((timestamp-bytes (convert-hex-vector (format nil "~8,'0X" timestamp)))
           (inc-bytes (convert-hex-vector (format nil "~6,'0X" inc))))
-      (concatenate 'vector timestamp-bytes hostname-bytes pid-bytes inc-bytes))))
-
-(defun get-current-hostname ()
-  "Get hostname of machine."
-  (machine-instance))
+      (concatenate 'vector timestamp-bytes *random-value* inc-bytes))))
 
 (defun get-current-timestamp ()
   "Get current unix timestamp."
