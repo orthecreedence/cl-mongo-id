@@ -23,6 +23,7 @@
 (in-package :cl-mongo-id)
 
 (defvar *id-inc* (secure-random:number (ash 1 24)))
+(defvar *id-inc-lock* (bt:make-lock))
 
 ;; In previous version of the ObjectId spec this was referenced as the
 ;; machine and pid. In v0.2 of the spec if was made to be a random
@@ -107,8 +108,9 @@
 (defun get-inc-val ()
   "Thread-safe method to get current ObjectId inc value. Takes an optional
   timestamp value to calculate inc for."
-  (logand #xFFFFFF
-          (atomics:atomic-incf *id-inc*)))
+  (bt:with-lock-held (*id-inc-lock*)
+    (setf *id-inc* (logand #xFFFFFF (1+ *id-inc*)))
+    *id-inc*))
 
 (defun get-current-pid (&key if-not-exists-return)
   "Get the current process' PID. This function does it's best to be cross-

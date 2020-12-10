@@ -4,6 +4,5 @@
   :license "MIT"
   :version "0.1.0"
   :depends-on (:bordeaux-threads :md5 :local-time
-                                 :atomics
                                  :secure-random)
   :components ((:file "mongo-id")))
