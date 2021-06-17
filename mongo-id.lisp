@@ -18,17 +18,41 @@
            :get-timestamp
            :get-hostname
            :get-pid
-           :get-inc)
+           :get-inc
+           :reset-state)
   (:nicknames :mongoid))
 (in-package :cl-mongo-id)
 
-(defvar *id-inc* (secure-random:number (ash 1 24)))
+(defvar *id-inc*)
 (defvar *id-inc-lock* (bt:make-lock))
 
 ;; In previous version of the ObjectId spec this was referenced as the
 ;; machine and pid. In v0.2 of the spec if was made to be a random
 ;; 5-byte sequence randomly chosen per instance of the process.
-(defvar *random-value* (secure-random:bytes 5 secure-random:*generator*))
+(defvar *random-value*)
+
+(defun reset-state ()
+  "Resets (or sets) the random state associated with the current
+process. This is useful when cl-mongo-id is loaded into an image that
+is deployed to multiple machines. In that case you should call
+RESET-STATE at the start of the process.
+
+On SBCL, CCL and Lispworks, this is done automatically when a saved
+image is restored."
+  (setf *id-inc* (secure-random:number (ash 1 24)))
+  (setf *random-value* (secure-random:bytes 5 secure-random:*generator*)))
+
+(reset-state)
+
+#+sbcl
+(pushnew 'reset-state sb-ext:*init-hooks*)
+
+#+lispworks
+(lw:define-action "When starting image" "Reset cl-mongo-id state"
+  #'reset-state)
+
+#+ccl
+(pushnew 'reset-state ccl:*restore-lisp-functions*)
 
 (defun oid (&optional id)
   "Generate a mongo id, in byte vector format."
